@@ -1,1 +1,5 @@
-This documents hold the available datasets for CTR prediction.
+This document holds the available datasets for CTR prediction.
+1) Kaggle competition hosted by Outbrain -- asked for policy on data usage permission.
+2) Criteo labs at http://criteolabs.wpengine.com/downloads/2014-kaggle-display-advertising-challenge-dataset/
+-- public dataset.
+3) Avazu dataset -- need to check whether public.
