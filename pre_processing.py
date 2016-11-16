@@ -13,6 +13,12 @@ spark = SparkSession \
 sc = spark.sparkContext;
 sqlContext = SQLContext(sc)
 
+
+def hashtoint(coloumnName, self):
+    for e in coloumnName:
+        x = int(e, 16)
+        return x
+
 def replacetab(line):
     data= line.split('\t')
     return data
@@ -85,6 +91,9 @@ def main():
     input_filter_fill=input_filter.fillna({'I1':mean_I1})
     input_filter_fill.show()
 
+    sparkF = pyspark.sql.functions.udf(hashtoint, pyspark.sql.types.IntegerType())
+
+    input_filter_fill.select(sparkF(input_filter_fill.workclass)).alias("temp").collect()
 
 
 if __name__ == "__main__":
