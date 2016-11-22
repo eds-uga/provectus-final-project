@@ -1,6 +1,7 @@
 from pyspark.sql import SparkSession
 from pyspark.ml.feature import OneHotEncoder,StringIndexer
 from pyspark.ml import Pipeline
+import sys
 
 
 spark = SparkSession\
@@ -11,7 +12,7 @@ spark = SparkSession\
 if __name__ == "__main__":
 
 		# Reading the Pre-processed data
-        df=spark.read.parquet("gs://bucket-name/citreo.parquet")
+        df=spark.read.parquet(sys.argv[1])
        
         col_name=["I1","I2","I3","I4","I5","I6","I7","I8","I9","I10","I11","I12","I13","C1","C2","C3","C4","C5","C6","C7","C8","C9","C10","C11","C12","C13","C14","C15","C16","C17","C18","C19","C20","C21","C22","C23","C24","C25","C26"]
         
@@ -32,5 +33,4 @@ if __name__ == "__main__":
         df_encoded=df_OneHotEncode.select([column for column in df_OneHotEncode.columns if column not in dropList])
 
         # Persisting the One Hor Encoded data in parquet file
-        df_encoded.write.parquet("gs://bucket-name/criteoOHEDataset.parquet")
-                                                                                                                                                                                                                     
+        df_encoded.write.parquet(sys.argv[2] + "ohe_data.parquet")

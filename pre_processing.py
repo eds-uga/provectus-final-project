@@ -8,6 +8,8 @@ from pyspark.sql.functions import  when
 from pyspark.sql.functions import Column
 import re
 import os
+import sys
+
 
 spark = SparkSession \
     .builder \
@@ -15,6 +17,7 @@ spark = SparkSession \
     .getOrCreate()
 sc = spark.sparkContext;
 sqlContext = SQLContext(sc)
+
 
 def replacetab(line):
     data= line.split('\t')
@@ -29,8 +32,9 @@ def hashtoint(coloumnName):
 def blank_as_null(x):
     return when(x != "", x).otherwise(None)
 
+
 def main():
-    input_data=sc.textFile('gs://dataproc-711992da-9b25-4ec0-b608-4367da5ba1ea-asia/dac_sample.txt',minPartitions=8).map(lambda line: line.encode("utf-8"))
+    input_data=sc.textFile(sys.argv[1], minPartitions=8).map(lambda line: line.encode("utf-8"))
     input_data.persist(StorageLevel(True, False, False, False, 1))
     print ("Input Data read completed...")
     process_data=input_data.map(lambda line:replacetab(line))
@@ -81,6 +85,7 @@ def main():
     input_filter=changedTypedf.drop("I1R").drop("I2R").drop("I3R").drop("I4R").drop("I5R").drop("I6R").\
                                 drop("I7R").drop("I8R").drop("I9R").drop("I10R").drop("I11R").drop("I12R").\
                                 drop("I13R")
+    '''
     mean_I1=input_filter.groupBy().avg("I1").head()[0]
     mean_I2 = input_filter.groupBy().avg("I2").head()[0]
     mean_I3 = input_filter.groupBy().avg("I3").head()[0]
@@ -93,11 +98,30 @@ def main():
     mean_I10 = input_filter.groupBy().avg("I10").head()[0]
     mean_I11 = input_filter.groupBy().avg("I11").head()[0]
     mean_I12 = input_filter.groupBy().avg("I12").head()[0]
-    mean_I13 = input_filter.groupBy().avg("I13").head()[0]
+    mean_I13 = input_filter.groupBy().avg("I13").head()[0]'''
 
+    med_I1 = input_filter.filter(input_filter['I1'].isNotNull()).approxQuantile("I1", [0.5], 0.0)
+    med_I2 = input_filter.filter(input_filter['I2'].isNotNull()).approxQuantile("I2", [0.5], 0.0)
+    med_I3 = input_filter.filter(input_filter['I3'].isNotNull()).approxQuantile("I3", [0.5], 0.0)
+    med_I4 = input_filter.filter(input_filter['I4'].isNotNull()).approxQuantile("I4", [0.5], 0.0)
+    med_I5 = input_filter.filter(input_filter['I5'].isNotNull()).approxQuantile("I5", [0.5], 0.0)
+    med_I6 = input_filter.filter(input_filter['I6'].isNotNull()).approxQuantile("I6", [0.5], 0.0)
+    med_I7 = input_filter.filter(input_filter['I7'].isNotNull()).approxQuantile("I7", [0.5], 0.0)
+    med_I8 = input_filter.filter(input_filter['I8'].isNotNull()).approxQuantile("I8", [0.5], 0.0)
+    med_I9 = input_filter.filter(input_filter['I9'].isNotNull()).approxQuantile("I9", [0.5], 0.0)
+    med_I10 = input_filter.filter(input_filter['I10'].isNotNull()).approxQuantile("I10", [0.5], 0.0)
+    med_I11 = input_filter.filter(input_filter['I11'].isNotNull()).approxQuantile("I11", [0.5], 0.0)
+    med_I12 = input_filter.filter(input_filter['I12'].isNotNull()).approxQuantile("I12", [0.5], 0.0)
+    med_I13 = input_filter.filter(input_filter['I13'].isNotNull()).approxQuantile("I13", [0.5], 0.0)
+
+    '''
     input_filter_fill=input_filter.fillna({'I1':mean_I1,'I2':mean_I2,'I3':mean_I3,'I4':mean_I4,'I5':mean_I5,
                                            'I6': mean_I6,'I7':mean_I8,'I8':mean_I8,'I9':mean_I9,'I10':mean_I10,
                                            'I11': mean_I11,'I12':mean_I12,'I13':mean_I13})
+    '''
+    input_filter_fill=input_filter.fillna({'I1': med_I1[0],'I2': med_I2[0],'I3': med_I3[0],'I4': med_I4[0],\
+      'I5': med_I5[0],'I6': med_I6[0],'I7': med_I8[0],'I8': med_I8[0],'I9': med_I9[0],'I10': med_I10[0],'I11': med_I11[0],'I12': med_I12[0],'I13': med_I13[0]})
+
     print ('Missing value handle completed in Continious data..')
     dfWithEmptyReplaced = input_filter_fill.withColumn("C1R", blank_as_null(input_filter_fill.C1R)).\
                                             withColumn("C2R", blank_as_null(input_filter_fill.C2R)).\
@@ -198,8 +222,10 @@ def main():
                                   sparkF("C19R").alias("C19"),sparkF("C20R").alias("C20"),sparkF("C21R").alias("C21"),
                                   sparkF("C22R").alias("C22"),sparkF("C23R").alias("C23"),sparkF("C24R").alias("C24"),
                                   sparkF("C25R").alias("C25"),sparkF("C26R").alias("C26"))
-    final_input_data.write.parquet("gs://dataproc-711992da-9b25-4ec0-b608-4367da5ba1ea-asia/data/criteo.parquet")
+    
+    final_input_data.write.parquet(sys.argv[2] + "data_with_medians.parquet")
     print ("Data saved..")
+
 
 if __name__ == "__main__":
     main()
