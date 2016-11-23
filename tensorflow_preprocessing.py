@@ -1,30 +1,20 @@
 import pandas as pd
+import os
 from scipy.stats.mstats import mode
+import tensorflow as tf
+
+
+def process(df):
 
 
 
 
-def main():
-    #defining the chunk size, i.e number of rows
-    chunksize = 10000
+    # reading dataset file in a chunk
 
 
-    #name of all the coloumns
-    inputColumn = ["Lable","I1", "I2", "I3", "I4", "I5", "I6", "I7", "I8", "I9", "I10", "I11", "I12", "I13", "C1",
-                   "C2", "C3", "C4", "C5", "C6", "C7", "C8", "C9", "C10", "C11", "C12", "C13", "C14",
-                   "C15", "C16", "C17", "C18", "C19",
-                   "C20", "C21", "C22", "C23", "C24", "C25", "C26"]
-
-    #reading dataset file in a chunk
-    chunk=pd.read_csv("dac_sample.txt", sep='\t', iterator=True, chunksize=chunksize, header=None, names=inputColumn)
-
-    #concatenate all the chunk
-    df = pd.concat(chunk)
-
-
-    #print(df)
-
-    #Filling all the missing values in continuous coloumns by the median of respective column
+    # print(df)
+    print("****************************HELLOOOOOOOOOOOOOOOOOO****************")
+    # Filling all the missing values in continuous coloumns by the median of respective column
     df['I1'].fillna((df['I1'].median()), inplace=True)
     df['I2'].fillna((df['I2'].median()), inplace=True)
     df['I3'].fillna((df['I3'].median()), inplace=True)
@@ -39,7 +29,7 @@ def main():
     df['I12'].fillna((df['I12'].median()), inplace=True)
     df['I13'].fillna((df['I13'].median()), inplace=True)
 
-    #Filling all the missing values in categorical coloumns by the mode of respective column
+    # Filling all the missing values in categorical coloumns by the mode of respective column
     df['C1'].fillna((df['C1'].mode()[0]), inplace=True)
     df['C2'].fillna((df['C2'].mode()[0]), inplace=True)
     df['C3'].fillna((df['C3'].mode()[0]), inplace=True)
@@ -67,13 +57,22 @@ def main():
     df['C25'].fillna((df['C25'].mode()[0]), inplace=True)
     df['C26'].fillna((df['C26'].mode()[0]), inplace=True)
 
+    df.to_csv(os.path.join("/home/yash", "Data", "new_file_" + "test.csv"), mode='a')
+
+#
+def main():
+
+    chunksize = 10000
+
+    # name of all the coloumns
+    inputColumn = ["Lable", "I1", "I2", "I3", "I4", "I5", "I6", "I7", "I8", "I9", "I10", "I11", "I12", "I13", "C1",
+                   "C2", "C3", "C4", "C5", "C6", "C7", "C8", "C9", "C10", "C11", "C12", "C13", "C14",
+                   "C15", "C16", "C17", "C18", "C19",
+                   "C20", "C21", "C22", "C23", "C24", "C25", "C26"]
+
+    for chunk in pd.read_csv("dac_sample.txt", sep='\t', iterator=True, chunksize=chunksize, header=None, names=inputColumn):
+        process(chunk)
 
 
-
-
-
-    #df.to_csv('out.csv')
-
-
-if  __name__ =='__main__':
+if __name__ == '__main__':
     main()
