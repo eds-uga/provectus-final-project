@@ -1,11 +1,13 @@
-from pyspark.sql import SparkSession
+from pyspark.sql import SparkSession, SQLContext
 from pyspark.ml.feature import VectorAssembler
 import sys
 
 spark = SparkSession\
         .builder\
         .getOrCreate()
-
+sc = spark.sparkContext;
+sqlContext = SQLContext(sc)
+sc.setLogLevel("WARN")
 
 
 if __name__ == "__main__":
