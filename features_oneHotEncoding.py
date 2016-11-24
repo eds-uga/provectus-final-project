@@ -1,4 +1,4 @@
-from pyspark.sql import SparkSession
+from pyspark.sql import SparkSession, SQLContext
 from pyspark.ml.feature import OneHotEncoder,StringIndexer
 from pyspark.ml import Pipeline
 import sys
