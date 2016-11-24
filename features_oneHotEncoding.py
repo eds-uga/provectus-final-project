@@ -8,6 +8,9 @@ spark = SparkSession\
         .builder\
         .getOrCreate()
 
+sc = spark.sparkContext;
+sqlContext = SQLContext(sc)
+sc.setLogLevel("WARN")
 
 if __name__ == "__main__":
 
