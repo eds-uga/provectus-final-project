@@ -2,10 +2,10 @@ from __future__ import print_function
 import urllib
 from pyspark import SparkContext, SparkConf,StorageLevel
 from pyspark.sql import SQLContext, Row, SparkSession
-from pyspark.sql.types import *
 from pyspark.sql.functions import udf
 from pyspark.sql.functions import  when
 from pyspark.sql.functions import Column
+from pyspark.sql.types import StructField, StructType, StringType
 import re
 import os
 import sys
@@ -22,11 +22,6 @@ sqlContext = SQLContext(sc)
 def replacetab(line):
     data= line.split('\t')
     return data
-
-
-def hashtoint(coloumnName):
-    x = int(coloumnName, 16)
-    return x
 
 
 def blank_as_null(x):
@@ -47,58 +42,45 @@ def main():
               StructField("I9R", StringType(), True),
               StructField("I10R",StringType(), True),StructField("I11R", StringType(), True),
               StructField("I12R", StringType(), True),
-              StructField("I13R", StringType(), True),StructField("C1R", StringType(), True),
-              StructField("C2R", StringType(), True),
-              StructField("C3R", StringType(), True),StructField("C4R", StringType(), True),
-              StructField("C5R", StringType(), True),
-              StructField("C6R", StringType(), True),StructField("C7R", StringType(), True),
-              StructField("C8R", StringType(), True),
-              StructField("C9R", StringType(), True),StructField("C10R", StringType(), True),
-              StructField("C11R", StringType(), True),
-              StructField("C12R", StringType(), True),StructField("C13R", StringType(), True),
-              StructField("C14R", StringType(), True),
-              StructField("C15R", StringType(), True),StructField("C16R", StringType(), True),
-              StructField("C17R", StringType(), True),
-              StructField("C18R", StringType(), True),StructField("C19R", StringType(), True),
-              StructField("C20R", StringType(), True),
-              StructField("C21R", StringType(), True),StructField("C22R", StringType(), True),
-              StructField("C23R", StringType(), True),
-              StructField("C24R", StringType(), True),StructField("C25R", StringType(), True),
-              StructField("C26R", StringType(), True)]
+              StructField("I13R", StringType(), True),StructField("C1", StringType(), True),
+              StructField("C2", StringType(), True),
+              StructField("C3", StringType(), True),StructField("C4", StringType(), True),
+              StructField("C5", StringType(), True),
+              StructField("C6", StringType(), True),StructField("C7", StringType(), True),
+              StructField("C8", StringType(), True),
+              StructField("C9", StringType(), True),StructField("C10", StringType(), True),
+              StructField("C11", StringType(), True),
+              StructField("C12", StringType(), True),StructField("C13", StringType(), True),
+              StructField("C14", StringType(), True),
+              StructField("C15", StringType(), True),StructField("C16", StringType(), True),
+              StructField("C17", StringType(), True),
+              StructField("C18", StringType(), True),StructField("C19", StringType(), True),
+              StructField("C20", StringType(), True),
+              StructField("C21", StringType(), True),StructField("C22", StringType(), True),
+              StructField("C23", StringType(), True),
+              StructField("C24", StringType(), True),StructField("C25", StringType(), True),
+              StructField("C26", StringType(), True)]
 
     schema = StructType(fields)
     input_dataframe = spark.createDataFrame(process_data, schema)
-    changedTypedf = input_dataframe.withColumn("I1", input_dataframe["I1R"].cast(FloatType())).\
-                                   withColumn("I2", input_dataframe["I2R"].cast(FloatType())).\
-                                   withColumn("I3", input_dataframe["I3R"].cast(FloatType())).\
-                                   withColumn("I4", input_dataframe["I4R"].cast(FloatType())).\
-                                   withColumn("I5", input_dataframe["I5R"].cast(FloatType())).\
-                                   withColumn("I6", input_dataframe["I6R"].cast(FloatType())).\
-                                   withColumn("I7", input_dataframe["I7R"].cast(FloatType())).\
-                                   withColumn("I8", input_dataframe["I8R"].cast(FloatType())).\
-                                   withColumn("I9", input_dataframe["I9R"].cast(FloatType())).\
-                                   withColumn("I10", input_dataframe["I10R"].cast(FloatType())).\
-                                   withColumn("I11", input_dataframe["I11R"].cast(FloatType())).\
-                                   withColumn("I12", input_dataframe["I12R"].cast(FloatType())).\
-                                   withColumn("I13", input_dataframe["I13R"].cast(FloatType()))
+    changedTypedf = input_dataframe.withColumn("I1", input_dataframe["I1R"].cast("int")).\
+                                   withColumn("I2", input_dataframe["I2R"].cast("int")).\
+                                   withColumn("I3", input_dataframe["I3R"].cast("int")).\
+                                   withColumn("I4", input_dataframe["I4R"].cast("int")).\
+                                   withColumn("I5", input_dataframe["I5R"].cast("int")).\
+                                   withColumn("I6", input_dataframe["I6R"].cast("int")).\
+                                   withColumn("I7", input_dataframe["I7R"].cast("int")).\
+                                   withColumn("I8", input_dataframe["I8R"].cast("int")).\
+                                   withColumn("I9", input_dataframe["I9R"].cast("int")).\
+                                   withColumn("I10", input_dataframe["I10R"].cast("int")).\
+                                   withColumn("I11", input_dataframe["I11R"].cast("int")).\
+                                   withColumn("I12", input_dataframe["I12R"].cast("int")).\
+                                   withColumn("I13", input_dataframe["I13R"].cast("int"))
+
     print ("Continious features type conversion completed..")
     input_filter=changedTypedf.drop("I1R").drop("I2R").drop("I3R").drop("I4R").drop("I5R").drop("I6R").\
                                 drop("I7R").drop("I8R").drop("I9R").drop("I10R").drop("I11R").drop("I12R").\
                                 drop("I13R")
-    '''
-    mean_I1=input_filter.groupBy().avg("I1").head()[0]
-    mean_I2 = input_filter.groupBy().avg("I2").head()[0]
-    mean_I3 = input_filter.groupBy().avg("I3").head()[0]
-    mean_I4 = input_filter.groupBy().avg("I4").head()[0]
-    mean_I5 = input_filter.groupBy().avg("I5").head()[0]
-    mean_I6 = input_filter.groupBy().avg("I6").head()[0]
-    mean_I7 = input_filter.groupBy().avg("I7").head()[0]
-    mean_I8 = input_filter.groupBy().avg("I8").head()[0]
-    mean_I9 = input_filter.groupBy().avg("I9").head()[0]
-    mean_I10 = input_filter.groupBy().avg("I10").head()[0]
-    mean_I11 = input_filter.groupBy().avg("I11").head()[0]
-    mean_I12 = input_filter.groupBy().avg("I12").head()[0]
-    mean_I13 = input_filter.groupBy().avg("I13").head()[0]'''
 
     med_I1 = input_filter.filter(input_filter['I1'].isNotNull()).approxQuantile("I1", [0.5], 0.0)
     med_I2 = input_filter.filter(input_filter['I2'].isNotNull()).approxQuantile("I2", [0.5], 0.0)
@@ -114,115 +96,53 @@ def main():
     med_I12 = input_filter.filter(input_filter['I12'].isNotNull()).approxQuantile("I12", [0.5], 0.0)
     med_I13 = input_filter.filter(input_filter['I13'].isNotNull()).approxQuantile("I13", [0.5], 0.0)
 
-    '''
-    input_filter_fill=input_filter.fillna({'I1':mean_I1,'I2':mean_I2,'I3':mean_I3,'I4':mean_I4,'I5':mean_I5,
-                                           'I6': mean_I6,'I7':mean_I8,'I8':mean_I8,'I9':mean_I9,'I10':mean_I10,
-                                           'I11': mean_I11,'I12':mean_I12,'I13':mean_I13})
-    '''
     input_filter_fill=input_filter.fillna({'I1': med_I1[0],'I2': med_I2[0],'I3': med_I3[0],'I4': med_I4[0],\
       'I5': med_I5[0],'I6': med_I6[0],'I7': med_I8[0],'I8': med_I8[0],'I9': med_I9[0],'I10': med_I10[0],'I11': med_I11[0],'I12': med_I12[0],'I13': med_I13[0]})
 
     print ('Missing value handle completed in Continious data..')
-    dfWithEmptyReplaced = input_filter_fill.withColumn("C1R", blank_as_null(input_filter_fill.C1R)).\
-                                            withColumn("C2R", blank_as_null(input_filter_fill.C2R)).\
-                                            withColumn("C3R", blank_as_null(input_filter_fill.C3R)).\
-                                            withColumn("C4R", blank_as_null(input_filter_fill.C4R)).\
-                                            withColumn("C5R", blank_as_null(input_filter_fill.C5R)).\
-                                            withColumn("C6R", blank_as_null(input_filter_fill.C6R)).\
-                                            withColumn("C7R", blank_as_null(input_filter_fill.C7R)).\
-                                            withColumn("C8R", blank_as_null(input_filter_fill.C8R)).\
-                                            withColumn("C9R", blank_as_null(input_filter_fill.C9R)).\
-                                            withColumn("C10R", blank_as_null(input_filter_fill.C10R)).\
-                                            withColumn("C11R", blank_as_null(input_filter_fill.C11R)).\
-                                            withColumn("C12R", blank_as_null(input_filter_fill.C12R)).\
-                                            withColumn("C13R", blank_as_null(input_filter_fill.C13R)).\
-                                            withColumn("C14R", blank_as_null(input_filter_fill.C14R)).\
-                                            withColumn("C15R", blank_as_null(input_filter_fill.C15R)).\
-                                            withColumn("C16R", blank_as_null(input_filter_fill.C16R)).\
-                                            withColumn("C17R", blank_as_null(input_filter_fill.C17R)).\
-                                            withColumn("C18R", blank_as_null(input_filter_fill.C18R)).\
-                                            withColumn("C19R", blank_as_null(input_filter_fill.C19R)).\
-                                            withColumn("C20R", blank_as_null(input_filter_fill.C20R)).\
-                                            withColumn("C21R", blank_as_null(input_filter_fill.C21R)).\
-                                            withColumn("C22R", blank_as_null(input_filter_fill.C22R)).\
-                                            withColumn("C23R", blank_as_null(input_filter_fill.C23R)).\
-                                            withColumn("C24R", blank_as_null(input_filter_fill.C24R)).\
-                                            withColumn("C25R", blank_as_null(input_filter_fill.C25R)).\
-                                            withColumn("C26R", blank_as_null(input_filter_fill.C26R))
+
+    dfWithEmptyReplaced = input_filter_fill.withColumn("C1", blank_as_null(input_filter_fill.C1)).\
+                                            withColumn("C2", blank_as_null(input_filter_fill.C2)).\
+                                            withColumn("C3", blank_as_null(input_filter_fill.C3)).\
+                                            withColumn("C4", blank_as_null(input_filter_fill.C4)).\
+                                            withColumn("C5", blank_as_null(input_filter_fill.C5)).\
+                                            withColumn("C6", blank_as_null(input_filter_fill.C6)).\
+                                            withColumn("C7", blank_as_null(input_filter_fill.C7)).\
+                                            withColumn("C8", blank_as_null(input_filter_fill.C8)).\
+                                            withColumn("C9", blank_as_null(input_filter_fill.C9)).\
+                                            withColumn("C10", blank_as_null(input_filter_fill.C10)).\
+                                            withColumn("C11", blank_as_null(input_filter_fill.C11)).\
+                                            withColumn("C12", blank_as_null(input_filter_fill.C12)).\
+                                            withColumn("C13", blank_as_null(input_filter_fill.C13)).\
+                                            withColumn("C14", blank_as_null(input_filter_fill.C14)).\
+                                            withColumn("C15", blank_as_null(input_filter_fill.C15)).\
+                                            withColumn("C16", blank_as_null(input_filter_fill.C16)).\
+                                            withColumn("C17", blank_as_null(input_filter_fill.C17)).\
+                                            withColumn("C18", blank_as_null(input_filter_fill.C18)).\
+                                            withColumn("C19", blank_as_null(input_filter_fill.C19)).\
+                                            withColumn("C20", blank_as_null(input_filter_fill.C20)).\
+                                            withColumn("C21", blank_as_null(input_filter_fill.C21)).\
+                                            withColumn("C22", blank_as_null(input_filter_fill.C22)).\
+                                            withColumn("C23", blank_as_null(input_filter_fill.C23)).\
+                                            withColumn("C24", blank_as_null(input_filter_fill.C24)).\
+                                            withColumn("C25", blank_as_null(input_filter_fill.C25)).\
+                                            withColumn("C26", blank_as_null(input_filter_fill.C26))
+
     print ('Categorical features replace empty value..' )
-    cnts1 = dfWithEmptyReplaced.filter(dfWithEmptyReplaced['C1R'].isNotNull()).groupBy("C1R").count().cache()
-    str1=cnts1.head()[0]
-    cnts2 = dfWithEmptyReplaced.filter(dfWithEmptyReplaced['C2R'].isNotNull()).groupBy("C2R").count().cache()
-    str2 = cnts2.head()[0]
-    cnts3 = dfWithEmptyReplaced.filter(dfWithEmptyReplaced['C3R'].isNotNull()).groupBy("C3R").count().cache()
-    str3 = cnts3.head()[0]
-    cnts4 = dfWithEmptyReplaced.filter(dfWithEmptyReplaced['C4R'].isNotNull()).groupBy("C4R").count().cache()
-    str4 = cnts4.head()[0]
-    cnts5 = dfWithEmptyReplaced.filter(dfWithEmptyReplaced['C5R'].isNotNull()).groupBy("C5R").count().cache()
-    str5 = cnts5.head()[0]
-    cnts6 = dfWithEmptyReplaced.filter(dfWithEmptyReplaced['C6R'].isNotNull()).groupBy("C6R").count().cache()
-    str6 = cnts6.head()[0]
-    cnts7 = dfWithEmptyReplaced.filter(dfWithEmptyReplaced['C7R'].isNotNull()).groupBy("C7R").count().cache()
-    str7 = cnts7.head()[0]
-    cnts8 = dfWithEmptyReplaced.filter(dfWithEmptyReplaced['C8R'].isNotNull()).groupBy("C8R").count().cache()
-    str8 = cnts8.head()[0]
-    cnts9 = dfWithEmptyReplaced.filter(dfWithEmptyReplaced['C9R'].isNotNull()).groupBy("C9R").count().cache()
-    str9 = cnts9.head()[0]
-    cnts10 = dfWithEmptyReplaced.filter(dfWithEmptyReplaced['C10R'].isNotNull()).groupBy("C10R").count().cache()
-    str10 = cnts10.head()[0]
-    cnts11 = dfWithEmptyReplaced.filter(dfWithEmptyReplaced['C11R'].isNotNull()).groupBy("C11R").count().cache()
-    str11 = cnts11.head()[0]
-    cnts12 = dfWithEmptyReplaced.filter(dfWithEmptyReplaced['C12R'].isNotNull()).groupBy("C12R").count().cache()
-    str12 = cnts12.head()[0]
-    cnts13 = dfWithEmptyReplaced.filter(dfWithEmptyReplaced['C13R'].isNotNull()).groupBy("C13R").count().cache()
-    str13 = cnts13.head()[0]
-    cnts14 = dfWithEmptyReplaced.filter(dfWithEmptyReplaced['C14R'].isNotNull()).groupBy("C14R").count().cache()
-    str14 = cnts14.head()[0]
-    cnts15 = dfWithEmptyReplaced.filter(dfWithEmptyReplaced['C15R'].isNotNull()).groupBy("C15R").count().cache()
-    str15 = cnts15.head()[0]
-    cnts16 = dfWithEmptyReplaced.filter(dfWithEmptyReplaced['C16R'].isNotNull()).groupBy("C16R").count().cache()
-    str16 = cnts16.head()[0]
-    cnts17 = dfWithEmptyReplaced.filter(dfWithEmptyReplaced['C17R'].isNotNull()).groupBy("C17R").count().cache()
-    str17 = cnts17.head()[0]
-    cnts18 = dfWithEmptyReplaced.filter(dfWithEmptyReplaced['C18R'].isNotNull()).groupBy("C18R").count().cache()
-    str18 = cnts18.head()[0]
-    cnts19 = dfWithEmptyReplaced.filter(dfWithEmptyReplaced['C19R'].isNotNull()).groupBy("C19R").count().cache()
-    str19 = cnts19.head()[0]
-    cnts20 = dfWithEmptyReplaced.filter(dfWithEmptyReplaced['C20R'].isNotNull()).groupBy("C20R").count().cache()
-    str20 = cnts20.head()[0]
-    cnts21 = dfWithEmptyReplaced.filter(dfWithEmptyReplaced['C21R'].isNotNull()).groupBy("C21R").count().cache()
-    str21 = cnts21.head()[0]
-    cnts22 = dfWithEmptyReplaced.filter(dfWithEmptyReplaced['C22R'].isNotNull()).groupBy("C22R").count().cache()
-    str22 = cnts22.head()[0]
-    cnts23 = dfWithEmptyReplaced.filter(dfWithEmptyReplaced['C23R'].isNotNull()).groupBy("C23R").count().cache()
-    str23 = cnts23.head()[0]
-    cnts24 = dfWithEmptyReplaced.filter(dfWithEmptyReplaced['C24R'].isNotNull()).groupBy("C24R").count().cache()
-    str24 = cnts24.head()[0]
-    cnts25 = dfWithEmptyReplaced.filter(dfWithEmptyReplaced['C25R'].isNotNull()).groupBy("C25R").count().cache()
-    str25 = cnts25.head()[0]
-    cnts26 = dfWithEmptyReplaced.filter(dfWithEmptyReplaced['C26R'].isNotNull()).groupBy("C26R").count().cache()
-    str26 = cnts26.head()[0]
 
-    input_data_pre=dfWithEmptyReplaced.fillna({"C1R":str1,"C2R":str2,"C3R":str3,"C4R":str4,"C5R":str5,
-                                     "C6R": str6,"C7R":str7,"C8R":str8,"C9R":str9,"C10R":str10,"C11R":str11,
-                                     "C12R": str12,"C13R":str13,"C14R":str14,"C15R":str15,"C16R":str16,"C17R":str17,
-                                     "C18R": str18,"C19R":str19,"C20R":str20,"C21R":str21,"C22R":str22,"C23R":str23,
-                                     "C24R": str24,"C25R":str25,"C26R":str26})
+    replace_string = "unknown"
+
+    final_input_data = dfWithEmptyReplaced.fillna({
+      "C1": replace_string, "C2": replace_string, "C3" : replace_string, "C4" : replace_string,
+      "C5": replace_string, "C6": replace_string, "C7" : replace_string, "C8" : replace_string,
+      "C9": replace_string, "C10": replace_string, "C11" : replace_string, "C12" : replace_string,
+      "C13": replace_string, "C14": replace_string, "C15": replace_string,"C16": replace_string,
+      "C17": replace_string, "C18": replace_string, "C19": replace_string, "C20": replace_string,
+      "C21": replace_string, "C22": replace_string, "C23": replace_string, "C24": replace_string,
+      "C25": replace_string,"C26":replace_string})
+
     print ('Replace missing value with mode for Continious features')
-    #input_data_pre.show()
-    sparkF = udf(hashtoint, IntegerType())
 
-    final_input_data=input_data_pre.select("label","I1","I2","I3","I4","I5","I6","I7","I8","I9","I10","I11","I12","I13",
-                                  sparkF("C1R").alias("C1"),sparkF("C2R").alias("C2"),sparkF("C3R").alias("C3"),
-                                  sparkF("C4R").alias("C4"),sparkF("C5R").alias("C5"),sparkF("C6R").alias("C6"),
-                                  sparkF("C7R").alias("C7"),sparkF("C8R").alias("C8"),sparkF("C9R").alias("C9"),
-                                  sparkF("C10R").alias("C10"),sparkF("C11R").alias("C11"),sparkF("C12R").alias("C12"),
-                                  sparkF("C13R").alias("C13"),sparkF("C14R").alias("C14"),sparkF("C15R").alias("C15"),
-                                  sparkF("C16R").alias("C16"),sparkF("C17R").alias("C17"),sparkF("C18R").alias("C18"),
-                                  sparkF("C19R").alias("C19"),sparkF("C20R").alias("C20"),sparkF("C21R").alias("C21"),
-                                  sparkF("C22R").alias("C22"),sparkF("C23R").alias("C23"),sparkF("C24R").alias("C24"),
-                                  sparkF("C25R").alias("C25"),sparkF("C26R").alias("C26"))
-    
     final_input_data.write.parquet(sys.argv[2] + "data_with_medians.parquet")
     print ("Data saved..")
 
