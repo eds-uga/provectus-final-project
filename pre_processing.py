@@ -24,8 +24,13 @@ def replacetab(line):
     return data
 
 
+def hash_to_int(value):
+    x = int(value, 16)
+    return x
+
+
 def blank_as_null(x):
-    return when(x != "", x).otherwise(None)
+    return when(x != "", hash_to_int(x)).otherwise(None)
 
 
 def main():
@@ -42,24 +47,24 @@ def main():
               StructField("I9R", StringType(), True),
               StructField("I10R",StringType(), True),StructField("I11R", StringType(), True),
               StructField("I12R", StringType(), True),
-              StructField("I13R", StringType(), True),StructField("C1", StringType(), True),
-              StructField("C2", StringType(), True),
-              StructField("C3", StringType(), True),StructField("C4", StringType(), True),
-              StructField("C5", StringType(), True),
-              StructField("C6", StringType(), True),StructField("C7", StringType(), True),
-              StructField("C8", StringType(), True),
-              StructField("C9", StringType(), True),StructField("C10", StringType(), True),
-              StructField("C11", StringType(), True),
-              StructField("C12", StringType(), True),StructField("C13", StringType(), True),
-              StructField("C14", StringType(), True),
-              StructField("C15", StringType(), True),StructField("C16", StringType(), True),
-              StructField("C17", StringType(), True),
-              StructField("C18", StringType(), True),StructField("C19", StringType(), True),
-              StructField("C20", StringType(), True),
-              StructField("C21", StringType(), True),StructField("C22", StringType(), True),
-              StructField("C23", StringType(), True),
-              StructField("C24", StringType(), True),StructField("C25", StringType(), True),
-              StructField("C26", StringType(), True)]
+              StructField("I13R", StringType(), True),StructField("C1R", StringType(), True),
+              StructField("C2R", StringType(), True),
+              StructField("C3R", StringType(), True),StructField("C4R", StringType(), True),
+              StructField("C5R", StringType(), True),
+              StructField("C6R", StringType(), True),StructField("C7R", StringType(), True),
+              StructField("C8R", StringType(), True),
+              StructField("C9R", StringType(), True),StructField("C10R", StringType(), True),
+              StructField("C11R", StringType(), True),
+              StructField("C12R", StringType(), True),StructField("C13R", StringType(), True),
+              StructField("C14R", StringType(), True),
+              StructField("C15R", StringType(), True),StructField("C16R", StringType(), True),
+              StructField("C17R", StringType(), True),
+              StructField("C18R", StringType(), True),StructField("C19R", StringType(), True),
+              StructField("C20R", StringType(), True),
+              StructField("C21R", StringType(), True),StructField("C22R", StringType(), True),
+              StructField("C23R", StringType(), True),
+              StructField("C24R", StringType(), True),StructField("C25R", StringType(), True),
+              StructField("C26R", StringType(), True)]
 
     schema = StructType(fields)
     input_dataframe = spark.createDataFrame(process_data, schema)
@@ -101,36 +106,37 @@ def main():
 
     print ('Missing value handle completed in Continious data..')
 
-    dfWithEmptyReplaced = input_filter_fill.withColumn("C1", blank_as_null(input_filter_fill.C1)).\
-                                            withColumn("C2", blank_as_null(input_filter_fill.C2)).\
-                                            withColumn("C3", blank_as_null(input_filter_fill.C3)).\
-                                            withColumn("C4", blank_as_null(input_filter_fill.C4)).\
-                                            withColumn("C5", blank_as_null(input_filter_fill.C5)).\
-                                            withColumn("C6", blank_as_null(input_filter_fill.C6)).\
-                                            withColumn("C7", blank_as_null(input_filter_fill.C7)).\
-                                            withColumn("C8", blank_as_null(input_filter_fill.C8)).\
-                                            withColumn("C9", blank_as_null(input_filter_fill.C9)).\
-                                            withColumn("C10", blank_as_null(input_filter_fill.C10)).\
-                                            withColumn("C11", blank_as_null(input_filter_fill.C11)).\
-                                            withColumn("C12", blank_as_null(input_filter_fill.C12)).\
-                                            withColumn("C13", blank_as_null(input_filter_fill.C13)).\
-                                            withColumn("C14", blank_as_null(input_filter_fill.C14)).\
-                                            withColumn("C15", blank_as_null(input_filter_fill.C15)).\
-                                            withColumn("C16", blank_as_null(input_filter_fill.C16)).\
-                                            withColumn("C17", blank_as_null(input_filter_fill.C17)).\
-                                            withColumn("C18", blank_as_null(input_filter_fill.C18)).\
-                                            withColumn("C19", blank_as_null(input_filter_fill.C19)).\
-                                            withColumn("C20", blank_as_null(input_filter_fill.C20)).\
-                                            withColumn("C21", blank_as_null(input_filter_fill.C21)).\
-                                            withColumn("C22", blank_as_null(input_filter_fill.C22)).\
-                                            withColumn("C23", blank_as_null(input_filter_fill.C23)).\
-                                            withColumn("C24", blank_as_null(input_filter_fill.C24)).\
-                                            withColumn("C25", blank_as_null(input_filter_fill.C25)).\
-                                            withColumn("C26", blank_as_null(input_filter_fill.C26))
+    dfWithEmptyReplaced = input_filter_fill.withColumn("C1", blank_as_null(input_filter_fill.C1R)).drop("C1R")\
+                                            .withColumn("C2", blank_as_null(input_filter_fill.C2R)).drop("C2R")\
+                                            .withColumn("C3", blank_as_null(input_filter_fill.C3R)).drop("C3R")\
+                                            .withColumn("C4", blank_as_null(input_filter_fill.C4R)).drop("C4R")\
+                                            .withColumn("C5", blank_as_null(input_filter_fill.C5R)).drop("C5R")\
+                                            .withColumn("C6", blank_as_null(input_filter_fill.C6R)).drop("C6R")\
+                                            .withColumn("C7", blank_as_null(input_filter_fill.C7R)).drop("C7R")\
+                                            .withColumn("C8", blank_as_null(input_filter_fill.C8R)).drop("C8R")\
+                                            .withColumn("C9", blank_as_null(input_filter_fill.C9R)).drop("C9R")\
+                                            .withColumn("C10", blank_as_null(input_filter_fill.C10R)).drop("C10R")\
+                                            .withColumn("C11", blank_as_null(input_filter_fill.C11R)).drop("C11R")\
+                                            .withColumn("C12", blank_as_null(input_filter_fill.C12R)).drop("C12R")\
+                                            .withColumn("C13", blank_as_null(input_filter_fill.C13R)).drop("C13R")\
+                                            .withColumn("C14", blank_as_null(input_filter_fill.C14R)).drop("C14R")\
+                                            .withColumn("C15", blank_as_null(input_filter_fill.C15R)).drop("C15R")\
+                                            .withColumn("C16", blank_as_null(input_filter_fill.C16R)).drop("C16R")\
+                                            .withColumn("C17", blank_as_null(input_filter_fill.C17R)).drop("C17R")\
+                                            .withColumn("C18", blank_as_null(input_filter_fill.C18R)).drop("C18R")\
+                                            .withColumn("C19", blank_as_null(input_filter_fill.C19R)).drop("C19R")\
+                                            .withColumn("C20", blank_as_null(input_filter_fill.C20R)).drop("C20R")\
+                                            .withColumn("C21", blank_as_null(input_filter_fill.C21R)).drop("C21R")\
+                                            .withColumn("C22", blank_as_null(input_filter_fill.C22R)).drop("C22R")\
+                                            .withColumn("C23", blank_as_null(input_filter_fill.C23R)).drop("C23R")\
+                                            .withColumn("C24", blank_as_null(input_filter_fill.C24R)).drop("C24R")\
+                                            .withColumn("C25", blank_as_null(input_filter_fill.C25R)).drop("C25R")\
+                                            .withColumn("C26", blank_as_null(input_filter_fill.C26R)).drop("C26R")
 
     print ('Categorical features replace empty value..' )
-
-    replace_string = "unknown"
+    
+    unknown_string_hash = "6e61"
+    replace_string = hash_to_int(unknown_string_hash)
 
     final_input_data = dfWithEmptyReplaced.fillna({
       "C1": replace_string, "C2": replace_string, "C3" : replace_string, "C4" : replace_string,
