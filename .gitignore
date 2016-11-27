@@ -1,2 +1,7 @@
 test.py
 logistic_regression.py
+derby.log
+features_VectorAssembler.pyc
+intermediate_data.parquet/
+metastore_db/
+pre_processing.pyc
