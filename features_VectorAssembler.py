@@ -1,30 +1,51 @@
 from pyspark.sql import SparkSession, SQLContext
+from pyspark.ml.feature import StringIndexer
 from pyspark.ml.feature import VectorAssembler
+from pyspark.ml import Pipeline
 import sys
 
-spark = SparkSession\
-        .builder\
-        .getOrCreate()
-sc = spark.sparkContext;
-sqlContext = SQLContext(sc)
-sc.setLogLevel("WARN")
 
+class AssembleVector(object):
+    
+    def __init__(self, input_data, output_path=""):
+        self.input_data = input_data
+        self.output_path = output_path
 
-if __name__ == "__main__":
+    def assemble_vector(self):
 
-        # Reading the One hot encoded data
-        df=spark.read.parquet(sys.argv[1])
+        write_flag = False
+
+        df = None
+
+        if isinstance(self.input_data, basestring):
+            df=spark.read.parquet(self.input_data)
+            write_flag = True
+        else:
+            df = self.input_data
 
         #Applying Vector Assembler 
-        inputColumn= ["I1V","I2V","I3V","I4V","I5V","I6V","I7V","I8V","I9V","I10V","I11V","I12V","I13V","C1V","C2V","C3V","C4V","C5V","C6V","C7V","C8V","C9V","C10V","C11V","C12V","C13V","C14V","C15V","C16V","C17V","C18V","C19V",
-                        "C20V","C21V","C22V","C23V","C24V","C25V","C26V"]
-        assembler = VectorAssembler(inputCols=inputColumn,outputCol="features")
-        output = assembler.transform(df)
+        inputColumn = ["C1","C2","C3","C4","C5","C6","C7","C8","C9","C10","C11","C12","C13","C14","C15","C16","C17","C18","C19","C20","C21","C22","C23","C24","C25","C26"]
 
-        # Reconstructing the dataframe by dropping unnecessary columns
-        assembledData=output.select([column for column in output.columns if column not in inputColumn])
-       
-        # Persisting Assembled Data 
-        assembledData.write.parquet(sys.argv[2]  + "assembled_data.parquet")
+        stringIndexer = [StringIndexer(inputCol=column, outputCol=column + "I") for column in inputColumn]
 
+        pipeline = Pipeline(stages=stringIndexer)
+        df_indexed = pipeline.fit(df).transform(df)
+
+        for column in df_indexed.columns:
+            if column in inputColumn:
+                df_indexed = df_indexed.drop(column)
         
+        column_names = ["I1","I2","I3","I4","I5","I6","I7","I8","I9","I10","I11","I12","I13","C1I","C2I","C3I","C4I","C5I","C6I","C7I","C8I","C9I","C10I","C11I","C12I","C13I","C14I","C15I","C16I","C17I","C18I","C19I","C20I","C21I","C22I","C23I","C24I","C25I","C26I"]
+
+        assembler = VectorAssembler(inputCols=column_names, outputCol="features")
+        output = assembler.transform(df_indexed)
+
+        for column in output.columns:
+            if column in column_names:
+                output = output.drop(column)
+
+        if write_flag:
+            #Persisting Assembled Data
+            output.write.parquet(self.output_path + "assembled_data.parquet")
+        else:
+            return output

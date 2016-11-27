@@ -8,39 +8,61 @@ from pyspark.sql.functions import Column
 from pyspark.sql.types import StructField, StructType, StringType, IntegerType
 import re
 import os
-import sys
 
-spark = SparkSession \
-    .builder \
-    .appName("CTR") \
+spark = SparkSession\
+    .builder\
+    .master("local")\
+    .appName("pipeline")\
     .getOrCreate()
-sc = spark.sparkContext;
-sqlContext = SQLContext(sc)
 
+sc = spark.sparkContext
+sc.setLogLevel("WARN")
 
-def replacetab(line):
+class PreProcess(object):
+  '''
+  This class generates a parquet file with label column and mulitple feature columns.
+  The features are processed to remove blank values and replaced with
+  - Mean of numerical features
+  - Static value for categorical features
+
+  parameters:
+  - path_to_input: string
+    Path to input data 
+  '''
+
+  def __init__(self, path_to_input):
+    self.path_to_input = path_to_input
+
+  def replacetab(self, line):
     data = line.split('\t')
     return data
 
 
-def hash_to_int(value):
+  def hash_to_int(self, value):
     if value == "":
-        return None
+      return None
     else:
-        x = int(value, 16)
-        return x
+      x = int(value, 16)
+      return x
 
 
-def blank_as_null(x):
-    hash_int = udf(hash_to_int, IntegerType())
+  def blank_as_null(self, x):
+    hash_int = udf(self.hash_to_int, IntegerType())
     return when(x != "", hash_int(x)).otherwise(None)
 
+  def preprocess_data(self):
+    '''
+    Main pre-processes logic
+    '''
 
-def main():
-    input_data = sc.textFile(sys.argv[1], minPartitions=16).map(lambda line: line.encode("utf-8"))
+    input_data = sc.textFile(self.path_to_input, minPartitions=16).map(lambda line: line.encode("utf-8"))
+
     input_data.persist(StorageLevel(True, False, False, False, 1))
+
     print("Input Data read completed...")
-    process_data = input_data.map(lambda line: replacetab(line))
+    
+    process_data = input_data.map(lambda line: self.replacetab(line))
+    
     fields = [StructField("label", StringType(), True),
               StructField("I1R", StringType(), True), StructField("I2R", StringType(), True),
               StructField("I3R", StringType(), True),
@@ -70,7 +92,9 @@ def main():
               StructField("C26R", StringType(), True)]
 
     schema = StructType(fields)
+
     input_dataframe = spark.createDataFrame(process_data, schema)
+    
     changedTypedf = input_dataframe.withColumn("I1", input_dataframe["I1R"].cast("int")). \
         withColumn("I2", input_dataframe["I2R"].cast("int")). \
         withColumn("I3", input_dataframe["I3R"].cast("int")). \
@@ -86,6 +110,7 @@ def main():
         withColumn("I13", input_dataframe["I13R"].cast("int"))
 
     print("Continious features type conversion completed..")
+    
     input_filter = changedTypedf.drop("I1R").drop("I2R").drop("I3R").drop("I4R").drop("I5R").drop("I6R"). \
         drop("I7R").drop("I8R").drop("I9R").drop("I10R").drop("I11R").drop("I12R"). \
         drop("I13R")
@@ -111,37 +136,37 @@ def main():
 
     print('Missing value handle completed in Continious data..')
 
-    dfWithEmptyReplaced = input_filter_fill.withColumn("C1", blank_as_null(input_filter_fill.C1R)).drop("C1R") \
-        .withColumn("C2", blank_as_null(input_filter_fill.C2R)).drop("C2R") \
-        .withColumn("C3", blank_as_null(input_filter_fill.C3R)).drop("C3R") \
-        .withColumn("C4", blank_as_null(input_filter_fill.C4R)).drop("C4R") \
-        .withColumn("C5", blank_as_null(input_filter_fill.C5R)).drop("C5R") \
-        .withColumn("C6", blank_as_null(input_filter_fill.C6R)).drop("C6R") \
-        .withColumn("C7", blank_as_null(input_filter_fill.C7R)).drop("C7R") \
-        .withColumn("C8", blank_as_null(input_filter_fill.C8R)).drop("C8R") \
-        .withColumn("C9", blank_as_null(input_filter_fill.C9R)).drop("C9R") \
-        .withColumn("C10", blank_as_null(input_filter_fill.C10R)).drop("C10R") \
-        .withColumn("C11", blank_as_null(input_filter_fill.C11R)).drop("C11R") \
-        .withColumn("C12", blank_as_null(input_filter_fill.C12R)).drop("C12R") \
-        .withColumn("C13", blank_as_null(input_filter_fill.C13R)).drop("C13R") \
-        .withColumn("C14", blank_as_null(input_filter_fill.C14R)).drop("C14R") \
-        .withColumn("C15", blank_as_null(input_filter_fill.C15R)).drop("C15R") \
-        .withColumn("C16", blank_as_null(input_filter_fill.C16R)).drop("C16R") \
-        .withColumn("C17", blank_as_null(input_filter_fill.C17R)).drop("C17R") \
-        .withColumn("C18", blank_as_null(input_filter_fill.C18R)).drop("C18R") \
-        .withColumn("C19", blank_as_null(input_filter_fill.C19R)).drop("C19R") \
-        .withColumn("C20", blank_as_null(input_filter_fill.C20R)).drop("C20R") \
-        .withColumn("C21", blank_as_null(input_filter_fill.C21R)).drop("C21R") \
-        .withColumn("C22", blank_as_null(input_filter_fill.C22R)).drop("C22R") \
-        .withColumn("C23", blank_as_null(input_filter_fill.C23R)).drop("C23R") \
-        .withColumn("C24", blank_as_null(input_filter_fill.C24R)).drop("C24R") \
-        .withColumn("C25", blank_as_null(input_filter_fill.C25R)).drop("C25R") \
-        .withColumn("C26", blank_as_null(input_filter_fill.C26R)).drop("C26R")
+    dfWithEmptyReplaced = input_filter_fill.withColumn("C1", self.blank_as_null(input_filter_fill.C1R)).drop("C1R") \
+        .withColumn("C2", self.blank_as_null(input_filter_fill.C2R)).drop("C2R") \
+        .withColumn("C3", self.blank_as_null(input_filter_fill.C3R)).drop("C3R") \
+        .withColumn("C4", self.blank_as_null(input_filter_fill.C4R)).drop("C4R") \
+        .withColumn("C5", self.blank_as_null(input_filter_fill.C5R)).drop("C5R") \
+        .withColumn("C6", self.blank_as_null(input_filter_fill.C6R)).drop("C6R") \
+        .withColumn("C7", self.blank_as_null(input_filter_fill.C7R)).drop("C7R") \
+        .withColumn("C8", self.blank_as_null(input_filter_fill.C8R)).drop("C8R") \
+        .withColumn("C9", self.blank_as_null(input_filter_fill.C9R)).drop("C9R") \
+        .withColumn("C10", self.blank_as_null(input_filter_fill.C10R)).drop("C10R") \
+        .withColumn("C11", self.blank_as_null(input_filter_fill.C11R)).drop("C11R") \
+        .withColumn("C12", self.blank_as_null(input_filter_fill.C12R)).drop("C12R") \
+        .withColumn("C13", self.blank_as_null(input_filter_fill.C13R)).drop("C13R") \
+        .withColumn("C14", self.blank_as_null(input_filter_fill.C14R)).drop("C14R") \
+        .withColumn("C15", self.blank_as_null(input_filter_fill.C15R)).drop("C15R") \
+        .withColumn("C16", self.blank_as_null(input_filter_fill.C16R)).drop("C16R") \
+        .withColumn("C17", self.blank_as_null(input_filter_fill.C17R)).drop("C17R") \
+        .withColumn("C18", self.blank_as_null(input_filter_fill.C18R)).drop("C18R") \
+        .withColumn("C19", self.blank_as_null(input_filter_fill.C19R)).drop("C19R") \
+        .withColumn("C20", self.blank_as_null(input_filter_fill.C20R)).drop("C20R") \
+        .withColumn("C21", self.blank_as_null(input_filter_fill.C21R)).drop("C21R") \
+        .withColumn("C22", self.blank_as_null(input_filter_fill.C22R)).drop("C22R") \
+        .withColumn("C23", self.blank_as_null(input_filter_fill.C23R)).drop("C23R") \
+        .withColumn("C24", self.blank_as_null(input_filter_fill.C24R)).drop("C24R") \
+        .withColumn("C25", self.blank_as_null(input_filter_fill.C25R)).drop("C25R") \
+        .withColumn("C26", self.blank_as_null(input_filter_fill.C26R)).drop("C26R")
 
     print('Categorical features replace empty value..')
 
     unknown_string_hash = "6e61"
-    replace_string = hash_to_int(unknown_string_hash)
+    replace_string = self.hash_to_int(unknown_string_hash)
 
     final_input_data = dfWithEmptyReplaced.fillna({
         "C1": replace_string, "C2": replace_string, "C3": replace_string, "C4": replace_string,
@@ -154,9 +179,8 @@ def main():
 
     print('Replace missing value with mode for Continious features')
     df=final_input_data.repartition(24)
-    df.write.parquet(sys.argv[2] + "_data.parquet")
+    
+    df.write.parquet("intermediate_data.parquet")
     print("Data saved..")
 
-
-if __name__ == "__main__":
-    main()
+    return "intermediate_data.parquet"
