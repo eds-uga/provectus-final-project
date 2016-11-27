@@ -9,14 +9,6 @@ from pyspark.sql.types import StructField, StructType, StringType, IntegerType
 import re
 import os
 
-spark = SparkSession\
-    .builder\
-    .master("local")\
-    .appName("pipeline")\
-    .getOrCreate()
-
-sc = spark.sparkContext
-sc.setLogLevel("WARN")
 
 class PreProcess(object):
   '''
@@ -30,84 +22,40 @@ class PreProcess(object):
     Path to input data 
   '''
 
-  def __init__(self, path_to_input):
-    self.path_to_input = path_to_input
-
-  def replacetab(self, line):
-    data = line.split('\t')
-    return data
+  def __init__(self, raw_input_data):
+    self.input_dataframe = raw_input_data
 
 
-  def hash_to_int(self, value):
+  '''def hash_to_int(self, value):
     if value == "":
       return None
     else:
       x = int(value, 16)
-      return x
+      return x'''
 
 
   def blank_as_null(self, x):
-    hash_int = udf(self.hash_to_int, IntegerType())
-    return when(x != "", hash_int(x)).otherwise(None)
+    # hash_int = udf(self.hash_to_int, IntegerType())
+    return when(x != "", x).otherwise(None)
 
   def preprocess_data(self):
     '''
     Main pre-processes logic
     '''
-
-    input_data = sc.textFile(self.path_to_input, minPartitions=16).map(lambda line: line.encode("utf-8"))
-
-    input_data.persist(StorageLevel(True, False, False, False, 1))
-
-    print("Input Data read completed...")
     
-    process_data = input_data.map(lambda line: self.replacetab(line))
-    
-    fields = [StructField("label", StringType(), True),
-              StructField("I1R", StringType(), True), StructField("I2R", StringType(), True),
-              StructField("I3R", StringType(), True),
-              StructField("I4R", StringType(), True), StructField("I5R", StringType(), True),
-              StructField("I6R", StringType(), True),
-              StructField("I7R", StringType(), True), StructField("I8R", StringType(), True),
-              StructField("I9R", StringType(), True),
-              StructField("I10R", StringType(), True), StructField("I11R", StringType(), True),
-              StructField("I12R", StringType(), True),
-              StructField("I13R", StringType(), True), StructField("C1R", StringType(), True),
-              StructField("C2R", StringType(), True),
-              StructField("C3R", StringType(), True), StructField("C4R", StringType(), True),
-              StructField("C5R", StringType(), True),
-              StructField("C6R", StringType(), True), StructField("C7R", StringType(), True),
-              StructField("C8R", StringType(), True),
-              StructField("C9R", StringType(), True), StructField("C10R", StringType(), True),
-              StructField("C11R", StringType(), True),
-              StructField("C12R", StringType(), True), StructField("C13R", StringType(), True),
-              StructField("C14R", StringType(), True),
-              StructField("C15R", StringType(), True), StructField("C16R", StringType(), True),
-              StructField("C17R", StringType(), True),
-              StructField("C18R", StringType(), True), StructField("C19R", StringType(), True),
-              StructField("C20R", StringType(), True),
-              StructField("C21R", StringType(), True), StructField("C22R", StringType(), True),
-              StructField("C23R", StringType(), True),
-              StructField("C24R", StringType(), True), StructField("C25R", StringType(), True),
-              StructField("C26R", StringType(), True)]
-
-    schema = StructType(fields)
-
-    input_dataframe = spark.createDataFrame(process_data, schema)
-    
-    changedTypedf = input_dataframe.withColumn("I1", input_dataframe["I1R"].cast("int")). \
-        withColumn("I2", input_dataframe["I2R"].cast("int")). \
-        withColumn("I3", input_dataframe["I3R"].cast("int")). \
-        withColumn("I4", input_dataframe["I4R"].cast("int")). \
-        withColumn("I5", input_dataframe["I5R"].cast("int")). \
-        withColumn("I6", input_dataframe["I6R"].cast("int")). \
-        withColumn("I7", input_dataframe["I7R"].cast("int")). \
-        withColumn("I8", input_dataframe["I8R"].cast("int")). \
-        withColumn("I9", input_dataframe["I9R"].cast("int")). \
-        withColumn("I10", input_dataframe["I10R"].cast("int")). \
-        withColumn("I11", input_dataframe["I11R"].cast("int")). \
-        withColumn("I12", input_dataframe["I12R"].cast("int")). \
-        withColumn("I13", input_dataframe["I13R"].cast("int"))
+    changedTypedf = self.input_dataframe.withColumn("I1", self.input_dataframe["I1R"].cast("int")). \
+        withColumn("I2", self.input_dataframe["I2R"].cast("int")). \
+        withColumn("I3", self.input_dataframe["I3R"].cast("int")). \
+        withColumn("I4", self.input_dataframe["I4R"].cast("int")). \
+        withColumn("I5", self.input_dataframe["I5R"].cast("int")). \
+        withColumn("I6", self.input_dataframe["I6R"].cast("int")). \
+        withColumn("I7", self.input_dataframe["I7R"].cast("int")). \
+        withColumn("I8", self.input_dataframe["I8R"].cast("int")). \
+        withColumn("I9", self.input_dataframe["I9R"].cast("int")). \
+        withColumn("I10", self.input_dataframe["I10R"].cast("int")). \
+        withColumn("I11", self.input_dataframe["I11R"].cast("int")). \
+        withColumn("I12", self.input_dataframe["I12R"].cast("int")). \
+        withColumn("I13", self.input_dataframe["I13R"].cast("int"))
 
     print("Continious features type conversion completed..")
     
@@ -166,7 +114,7 @@ class PreProcess(object):
     print('Categorical features replace empty value..')
 
     unknown_string_hash = "6e61"
-    replace_string = self.hash_to_int(unknown_string_hash)
+    replace_string = unknown_string_hash
 
     final_input_data = dfWithEmptyReplaced.fillna({
         "C1": replace_string, "C2": replace_string, "C3": replace_string, "C4": replace_string,
@@ -179,6 +127,4 @@ class PreProcess(object):
 
     print('Replace missing value with mode for Continious features')
     
-    df=final_input_data.repartition(24)
-
-    return df
+    return final_input_data
