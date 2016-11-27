@@ -1,6 +1,5 @@
 from pyspark.sql import SparkSession
 from pyspark.ml.classification import RandomForestClassifier
-from pyspark.ml.feature import StringIndexer, VectorIndexer
 from features_VectorAssembler import AssembleVector
 from pre_processing import PreProcess
 import sys
@@ -16,16 +15,12 @@ sc = spark.sparkContext
 sc.setLogLevel("WARN")
 
 
-def prep_rf(path_input):
+def prep_rf(data_input):
     
     # Reference for this piece of code: https://spark.apache.org/docs/latest/ml-classification-regression.html#random-forest-classifier
-
-    input_data = spark.read.format("libsvm").parquet(path_input)
     
-    si = StringIndexer(inputCol="label", outputCol="indexedLabel").fit(input_data)
-
     # Combine multiple feature columns to one feature column
-    av = AssembleVector(input_data)
+    av = AssembleVector(data_input)
     data = av.assemble_vector()
 
     return data
@@ -42,15 +37,15 @@ def main():
 
     pp = PreProcess(raw_file_path)
 
-    path_to_data = pp.preprocess_data()
+    preprocessed_data = pp.preprocess_data()
 
     data = None
 
     if output_type == "rf":
-        data = prep_rf(path_to_data)
+        data = prep_rf(preprocessed_data)
 
     # write to file the data variable
-    data.show()
+    data.write.parquet(path_to_output + "final_" + output_type + "_data.parquet")
 
 
 if __name__ == '__main__':

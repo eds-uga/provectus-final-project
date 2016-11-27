@@ -178,9 +178,7 @@ class PreProcess(object):
         "C25": replace_string, "C26": replace_string})
 
     print('Replace missing value with mode for Continious features')
-    df=final_input_data.repartition(24)
     
-    df.write.parquet("intermediate_data.parquet")
-    print("Data saved..")
+    df=final_input_data.repartition(24)
 
-    return "intermediate_data.parquet"
+    return df
