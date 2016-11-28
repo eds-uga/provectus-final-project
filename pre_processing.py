@@ -125,6 +125,6 @@ class PreProcess(object):
         "C21": replace_string, "C22": replace_string, "C23": replace_string, "C24": replace_string,
         "C25": replace_string, "C26": replace_string})
 
-    print('Replace missing value with mode for Continious features')
+    final_input_data = final_input_data.withColumn("label", final_input_data.label.cast("double"))
     
     return final_input_data

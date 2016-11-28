@@ -9,16 +9,14 @@ spark = SparkSession \
    .builder \
    .appName("CTR") \
    .config("spark.driver.maxResultSize","3g")\
-   .config("spark.serializer", "org.apache.spark.serializer.KryoSerializer")\
    .config("spark.executor.heartbeatInterval","60s")\
    .config("spark.storage.memoryMapThreshold","16m")\
    .config("spark.rdd.compress","true")\
-   .config("spark.sql.shuffle.partitions",600)\
    .getOrCreate()
 sc = spark.sparkContext
 sqlContext = SQLContext(sc)
-sc.setLogLevel("INFO")
-
+sc.setLogLevel("WARN")
+# .config('spark.sql.warehouse.dir', 'file:///C:/')\
 
 def prep_rf(data_input):
     
