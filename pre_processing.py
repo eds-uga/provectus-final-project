@@ -84,40 +84,32 @@ class PreProcess(object):
 
     print('Missing value handle completed in Continious data..')
 
-    dfWithEmptyReplaced = input_filter_fill.withColumn("C1", self.blank_as_null(input_filter_fill.C1R))\
-        .withColumn("C2", self.blank_as_null(input_filter_fill.C2R))\
-        .withColumn("C3", self.blank_as_null(input_filter_fill.C3R))\
-        .withColumn("C4", self.blank_as_null(input_filter_fill.C4R))\
-        .withColumn("C5", self.blank_as_null(input_filter_fill.C5R))\
-        .withColumn("C6", self.blank_as_null(input_filter_fill.C6R))\
-        .withColumn("C7", self.blank_as_null(input_filter_fill.C7R))\
-        .withColumn("C8", self.blank_as_null(input_filter_fill.C8R))\
-        .withColumn("C9", self.blank_as_null(input_filter_fill.C9R))\
-        .withColumn("C10", self.blank_as_null(input_filter_fill.C10R))\
-        .withColumn("C11", self.blank_as_null(input_filter_fill.C11R))\
-        .withColumn("C12", self.blank_as_null(input_filter_fill.C12R))\
-        .withColumn("C13", self.blank_as_null(input_filter_fill.C13R))\
-        .withColumn("C14", self.blank_as_null(input_filter_fill.C14R))\
-        .withColumn("C15", self.blank_as_null(input_filter_fill.C15R))\
-        .withColumn("C16", self.blank_as_null(input_filter_fill.C16R))\
-        .withColumn("C17", self.blank_as_null(input_filter_fill.C17R))\
-        .withColumn("C18", self.blank_as_null(input_filter_fill.C18R))\
-        .withColumn("C19", self.blank_as_null(input_filter_fill.C19R))\
-        .withColumn("C20", self.blank_as_null(input_filter_fill.C20R))\
-        .withColumn("C21", self.blank_as_null(input_filter_fill.C21R))\
-        .withColumn("C22", self.blank_as_null(input_filter_fill.C22R))\
-        .withColumn("C23", self.blank_as_null(input_filter_fill.C23R))\
-        .withColumn("C24", self.blank_as_null(input_filter_fill.C24R))\
-        .withColumn("C25", self.blank_as_null(input_filter_fill.C25R))\
-        .withColumn("C26", self.blank_as_null(input_filter_fill.C26R))\
-
-    to_drop = ["C1R", "C2R", "C3R", "C4R", "C5R", "C6R", "C7R", "C8R", "C9R", "C10R", "C11R", "C12R", "C13R",\
-    "C14R", "C15R", "C16R", "C17R", "C18R", "C19R", "C20R", "C21R", "C22R", "C23R", "C24R", "C25R", "C26R"]
-
-    # drop extra columns
-    for column in dfWithEmptyReplaced.columns:
-        if column in to_drop:
-            dfWithEmptyReplaced = dfWithEmptyReplaced.drop(column)
+    dfWithEmptyReplaced = input_filter_fill.withColumn("C1", self.blank_as_null(input_filter_fill.C1R)).drop("C1R")\
+        .withColumn("C2", self.blank_as_null(input_filter_fill.C2R)).drop("C2R")\
+        .withColumn("C3", self.blank_as_null(input_filter_fill.C3R)).drop("C3R")\
+        .withColumn("C4", self.blank_as_null(input_filter_fill.C4R)).drop("C4R")\
+        .withColumn("C5", self.blank_as_null(input_filter_fill.C5R)).drop("C5R")\
+        .withColumn("C6", self.blank_as_null(input_filter_fill.C6R)).drop("C6R")\
+        .withColumn("C7", self.blank_as_null(input_filter_fill.C7R)).drop("C7R")\
+        .withColumn("C8", self.blank_as_null(input_filter_fill.C8R)).drop("C8R")\
+        .withColumn("C9", self.blank_as_null(input_filter_fill.C9R)).drop("C9R")\
+        .withColumn("C10", self.blank_as_null(input_filter_fill.C10R)).drop("C10R")\
+        .withColumn("C11", self.blank_as_null(input_filter_fill.C11R)).drop("C11R")\
+        .withColumn("C12", self.blank_as_null(input_filter_fill.C12R)).drop("C12R")\
+        .withColumn("C13", self.blank_as_null(input_filter_fill.C13R)).drop("C13R")\
+        .withColumn("C14", self.blank_as_null(input_filter_fill.C14R)).drop("C14R")\
+        .withColumn("C15", self.blank_as_null(input_filter_fill.C15R)).drop("C15R")\
+        .withColumn("C16", self.blank_as_null(input_filter_fill.C16R)).drop("C16R")\
+        .withColumn("C17", self.blank_as_null(input_filter_fill.C17R)).drop("C17R")\
+        .withColumn("C18", self.blank_as_null(input_filter_fill.C18R)).drop("C18R")\
+        .withColumn("C19", self.blank_as_null(input_filter_fill.C19R)).drop("C19R")\
+        .withColumn("C20", self.blank_as_null(input_filter_fill.C20R)).drop("C20R")\
+        .withColumn("C21", self.blank_as_null(input_filter_fill.C21R)).drop("C21R")\
+        .withColumn("C22", self.blank_as_null(input_filter_fill.C22R)).drop("C22R")\
+        .withColumn("C23", self.blank_as_null(input_filter_fill.C23R)).drop("C23R")\
+        .withColumn("C24", self.blank_as_null(input_filter_fill.C24R)).drop("C24R")\
+        .withColumn("C25", self.blank_as_null(input_filter_fill.C25R)).drop("C25R")\
+        .withColumn("C26", self.blank_as_null(input_filter_fill.C26R)).drop("C26R")
 
     print('Categorical features replace empty value..')
 

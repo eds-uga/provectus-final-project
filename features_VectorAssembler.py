@@ -30,9 +30,10 @@ class AssembleVector(object):
         pipeline = Pipeline(stages=stringIndexer)
         df_indexed = pipeline.fit(df).transform(df)
 
-        for column in df_indexed.columns:
-            if column in inputColumn:
-                df_indexed = df_indexed.drop(column)
+        df_indexed = df_indexed.drop("C1").drop("C2").drop("C3").drop("C4").drop("C5").drop("C6")\
+            .drop("C7").drop("C8").drop("C9").drop("C10").drop("C11")\
+            .drop("C12").drop("C13").drop("C14").drop("C15").drop("C16").drop("C17").drop("C18").drop("C19")\
+            .drop("C20").drop("C21").drop("C22").drop("C23").drop("C24").drop("C25").drop("C26")
 
         # Combine categorical features to feed into chi squared selector
         cat_column_names = ["C1I","C2I","C5I","C6I","C8I","C9I","C11I","C13I","C14I",\
@@ -54,9 +55,13 @@ class AssembleVector(object):
         output = assembler.transform(chi_result)
         # combining complete
 
-        for column in output.columns:
-            if column in column_names:
-                output = output.drop(column)
+        # drop extraneous columns
+        output = output.drop("I1").drop("I2").drop("I3").drop("I4").drop("I5").drop("I6").drop("I7")\
+        .drop("I8").drop("I9").drop("I10").drop("I11").drop("I12").drop("I13").drop("C1I").drop("C2I")\
+        .drop("C3I").drop("C4I").drop("C5I").drop("C6I").drop("C7I").drop("C8I").drop("C9I").drop("C10I")\
+        .drop("C11I").drop("C12I").drop("C13I").drop("C14I").drop("C15I").drop("C16I").drop("C17I")\
+        .drop("C18I").drop("C19I").drop("C20I").drop("C21I").drop("C22I").drop("C23I").drop("C24I")\
+        .drop("C25I").drop("C26I").drop("cat_features").drop("selectedFeatures")
 
         if write_flag:
             #Persisting Assembled Data
