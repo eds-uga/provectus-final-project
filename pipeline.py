@@ -12,6 +12,7 @@ spark = SparkSession \
    .config("spark.executor.heartbeatInterval","60s")\
    .config("spark.storage.memoryMapThreshold","16m")\
    .config("spark.rdd.compress","true")\
+   .config('spark.sql.warehouse.dir', 'file:///C:/')\
    .getOrCreate()
 sc = spark.sparkContext
 sqlContext = SQLContext(sc)
