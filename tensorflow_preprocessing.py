@@ -1,6 +1,5 @@
 import pandas as pd
 import os
-from scipy.stats.mstats import mode
 import tensorflow as tf
 
 
@@ -13,7 +12,7 @@ def process(df):
 
 
     # print(df)
-    print("****************************HELLOOOOOOOOOOOOOOOOOO****************")
+    print("****************************BATCH****************")
     # Filling all the missing values in continuous coloumns by the median of respective column
     df['I1'].fillna((df['I1'].median()), inplace=True)
     df['I2'].fillna((df['I2'].median()), inplace=True)
@@ -65,7 +64,7 @@ def main():
     chunksize = 10000
 
     # name of all the coloumns
-    inputColumn = ["Lable", "I1", "I2", "I3", "I4", "I5", "I6", "I7", "I8", "I9", "I10", "I11", "I12", "I13", "C1",
+    inputColumn = ["Label", "I1", "I2", "I3", "I4", "I5", "I6", "I7", "I8", "I9", "I10", "I11", "I12", "I13", "C1",
                    "C2", "C3", "C4", "C5", "C6", "C7", "C8", "C9", "C10", "C11", "C12", "C13", "C14",
                    "C15", "C16", "C17", "C18", "C19",
                    "C20", "C21", "C22", "C23", "C24", "C25", "C26"]
