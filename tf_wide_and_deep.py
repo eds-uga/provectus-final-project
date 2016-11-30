@@ -7,10 +7,10 @@ import tensorflow as tf
 flags = tf.app.flags
 FLAGS = flags.FLAGS
 
-flags.DEFINE_string("model_dir", "", "Base directory for output models.")
+flags.DEFINE_string("model_dir", "/home/dharamendra/model", "Base directory for output models.")
 flags.DEFINE_string("model_type", "wide_n_deep",
                     "Valid model types: {'wide', 'deep', 'wide_n_deep'}.")
-flags.DEFINE_integer("train_steps", 200, "Number of training steps.")
+flags.DEFINE_integer("train_steps", 400, "Number of training steps.")
 flags.DEFINE_string(
     "train_data",
     "",
@@ -20,7 +20,7 @@ flags.DEFINE_string(
     "",
     "Path to the test data.")
 
-COLUMNS = ["I1", "I2", "I3", "I4", "I5", "I6", "I7", "I8", "I9", "I10", "I11", "I12", "I13", "C1",
+COLUMNS = ["index","label","I1", "I2", "I3", "I4", "I5", "I6", "I7", "I8", "I9", "I10", "I11", "I12", "I13", "C1",
                    "C2", "C3", "C4", "C5", "C6", "C7", "C8", "C9", "C10", "C11", "C12", "C13", "C14",
                    "C15", "C16", "C17", "C18", "C19",
 "C20", "C21", "C22", "C23", "C24", "C25", "C26"]
@@ -36,7 +36,7 @@ CATEGORICAL_COLUMNS = {"C1","C2", "C3", "C4", "C5", "C6", "C7",
 CONTINUOUS_COLUMNS = ["I1", "I2", "I3", "I4", "I5", "I6", "I7", "I8", "I9", "I10", "I11", "I12", "I13"]
 
 def train_and_eval(train_file):
-    file_read = pd.read_csv(train_file, names=COLUMNS)
+    file_read = pd.read_csv(train_file)
 
     df_train, df_test = train_test_split(file_read, test_size=0.2)
     # df_train = pd.read_csv(
@@ -64,14 +64,14 @@ def train_and_eval(train_file):
 
     m.fit(input_fn=lambda: input_fn(df_train), steps=FLAGS.train_steps)
 
-    results = m.evaluate(input_fn=lambda: input_fn(df_test), steps=1)
+    results = m.evaluate(input_fn=lambda: input_fn(df_test), steps=6)
 
     for key in sorted(results):
         print("%s: %s" % (key, results[key]))
     init = tf.group(tf.initialize_all_variables(), tf.initialize_local_variables())
 
     sess = tf.Session(
-        config=tf.ConfigProto(allow_soft_placement=True, log_device_placement=FLAGS.log_device_placement))
+        config=tf.ConfigProto())
     sess.run(init)
 
 
@@ -234,14 +234,14 @@ def build_estimator(model_dir):
             model_dir=model_dir,
             linear_feature_columns=wide_columns,
             dnn_feature_columns=deep_columns,
-            dnn_hidden_units=[100, 50])
+            dnn_hidden_units=[512, 256,128,64],dnn_optimizer="Adagrad",linear_optimizer="SGD")
     return m
 
 def input_fn(df):
   """Input builder function."""
   # Creates a dictionary mapping from each continuous feature column name (k) to
   # the values of that column stored in a constant Tensor.
-  continuous_cols = {k: tf.constant(df[k].values) for k in CONTINUOUS_COLUMNS}
+  continuous_cols = {k: tf.constant(df[k].values, dtype=tf.float32) for k in CONTINUOUS_COLUMNS}
   # Creates a dictionary mapping from each categorical feature column name (k)
   # to the values of that column stored in a tf.SparseTensor.
   categorical_cols = {k: tf.SparseTensor(
@@ -261,15 +261,9 @@ def input_fn(df):
 
 
 
-
-
-
-
-
-
 def main():
 
-    train_and_eval("output.csv")
+    train_and_eval("/home/dharamendra/output.csv")
 
 if __name__ == "__main__":
     main()
