@@ -1,4 +1,5 @@
 from pyspark.sql import SparkSession, SQLContext
+from pyspark import StorageLevel
 from pyspark.sql.types import StructField, StructType, StringType, IntegerType
 from features_VectorAssembler import AssembleVector
 from pre_processing import PreProcess
