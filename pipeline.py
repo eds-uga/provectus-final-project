@@ -93,6 +93,7 @@ def main():
         data = prep_rf(preprocessed_data)
 
     # write to file the data variable
+    data.persist(StorageLevel(True, True, False, False, 1))
     data.write.parquet(path_to_output + "final_" + output_type + "_data.parquet")
 
 
