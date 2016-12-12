@@ -56,7 +56,7 @@ def process(df):
     df['C25'].fillna((df['C25'].mode()[0]), inplace=True)
     df['C26'].fillna((df['C26'].mode()[0]), inplace=True)
 
-    df.to_csv(os.path.join("/home/yash", "Data", "new_file_" + "test.csv"), mode='a')
+    df.to_csv(os.path.join("/home/yash", "Data", "new_file_" + "test.csv"), mode='a',header=False)
 
 #
 def main():
