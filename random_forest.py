@@ -1,4 +1,5 @@
 from pyspark.sql import SparkSession, SQLContext
+from pyspark import StorageLevel
 from pyspark.ml.classification import RandomForestClassifier
 from pyspark.ml.evaluation import MulticlassClassificationEvaluator
 import sys
@@ -17,6 +18,8 @@ def main():
     sc.setLogLevel("INFO")
 
     train_df = spark.read.parquet(sys.argv[1])
+    #Persist the data in memory and disk
+    train_df.persist(StorageLevel(True, True, False, False, 1))
 
     rfc = RandomForestClassifier(maxDepth=8, maxBins=2400000, numTrees=128,impurity="gini")
     rfc_model = rfc.fit(train_df)
