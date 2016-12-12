@@ -20,7 +20,7 @@ CONTINUOUS_COLUMNS = ["I1", "I2", "I3", "I4", "I5", "I6", "I7", "I8", "I9", "I10
 
 def input_fn_eval(batch_size,file_name):
     """
-    Input function creates feautre and label dict for cross-validation
+     Input function to predict the test features
     :param batch_size:
     :param file_name:
     :return: features and label dict
@@ -62,7 +62,7 @@ def dense_to_sparse(dense_tensor):
 
 def input_fn(batch_size,file_name):
     """
-    Input function to predict the test features
+    Input function creates feautre and label dict for cross-validation
     :param batch_size:
     :param file_name:
     :return: feature dict
