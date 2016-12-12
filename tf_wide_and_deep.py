@@ -1,88 +1,65 @@
 import tempfile
-from sklearn.model_selection import train_test_split
-
-import pandas as pd
+import sys
 import tensorflow as tf
-
 flags = tf.app.flags
 FLAGS = flags.FLAGS
 
 flags.DEFINE_string("model_dir", "/home/dharamendra/model", "Base directory for output models.")
 flags.DEFINE_string("model_type", "wide_n_deep",
                     "Valid model types: {'wide', 'deep', 'wide_n_deep'}.")
-flags.DEFINE_integer("train_steps", 400, "Number of training steps.")
-flags.DEFINE_string(
-    "train_data",
-    "",
-    "Path to the training data.")
-flags.DEFINE_string(
-    "test_data",
-    "",
-    "Path to the test data.")
+flags.DEFINE_integer("train_steps", 100, "Number of training steps.")
+flags.DEFINE_integer("BATCH_SIZE", 10000, "Number of examples iin a batch")
+flags.DEFINE_string("train_data","","Path to the training data.")
+flags.DEFINE_string("test_data","","Path to the test data.")
 
-COLUMNS = ["index","label","I1", "I2", "I3", "I4", "I5", "I6", "I7", "I8", "I9", "I10", "I11", "I12", "I13", "C1",
-                   "C2", "C3", "C4", "C5", "C6", "C7", "C8", "C9", "C10", "C11", "C12", "C13", "C14",
-                   "C15", "C16", "C17", "C18", "C19",
-"C20", "C21", "C22", "C23", "C24", "C25", "C26"]
+COLUMNS = ["index","label","I1", "I2", "I3", "I4", "I5", "I6", "I7", "I8", "I9", "I10", "I11", "I12",
+           "I13","C1","C2", "C3", "C4", "C5", "C6", "C7", "C8", "C9", "C10", "C11", "C12", "C13",
+           "C14","C15", "C16", "C17", "C18", "C19","C20", "C21", "C22", "C23", "C24", "C25", "C26"]
 
+train_data="criteo.csv"
+BATCH_SIZE=5000
 
 LABEL_COLUMN = "label"
 
-CATEGORICAL_COLUMNS = {"C1","C2", "C3", "C4", "C5", "C6", "C7",
-                       "C8", "C9", "C10", "C11", "C12", "C13", "C14",
-                   "C15", "C16", "C17", "C18", "C19",
-                   "C20", "C21", "C22", "C23", "C24", "C25", "C26"}
+CATEGORICAL_COLUMNS = {"C1","C2", "C3", "C4", "C5", "C6", "C7","C8", "C9", "C10", "C11", "C12", "C13", "C14",
+                   "C15", "C16", "C17", "C18", "C19","C20", "C21", "C22", "C23", "C24", "C25", "C26"}
 
 CONTINUOUS_COLUMNS = ["I1", "I2", "I3", "I4", "I5", "I6", "I7", "I8", "I9", "I10", "I11", "I12", "I13"]
 
 def train_and_eval(train_file):
-    file_read = pd.read_csv(train_file)
-
-    df_train, df_test = train_test_split(file_read, test_size=0.2)
-    # df_train = pd.read_csv(
-    #     tf.gfile.Open(train_file),
-    #     names=COLUMNS,
-    #     engine="c")
-
-    print("*********train file read***********")
-
-    # df_test = pd.read_csv(
-    #     tf.gfile.Open(test_file),
-    #     names=COLUMNS,
-    #
-    #     engine="c")
-
-    print("**********test file read***********")
+    """
+    Generate tarin model for CTR
+    :param train_file:
+    :return:
+    """
 
     model_dir = tempfile.mkdtemp() if not FLAGS.model_dir else FLAGS.model_dir
     print("model directory = %s" % model_dir)
 
-    print("****************Starting to build the estimator*********8")
+    print("****************Starting to build the estimator**********")
     m = build_estimator(model_dir)
 
     print("Done Building Estimator")
 
-    m.fit(input_fn=lambda: input_fn(df_train), steps=FLAGS.train_steps)
-
-    results = m.evaluate(input_fn=lambda: input_fn(df_test), steps=6)
-
-    for key in sorted(results):
-        print("%s: %s" % (key, results[key]))
-    init = tf.group(tf.initialize_all_variables(), tf.initialize_local_variables())
-
-    sess = tf.Session(
-        config=tf.ConfigProto())
-    sess.run(init)
+    m.fit(input_fn=lambda: input_fn(BATCH_SIZE,train_data), steps=FLAGS.train_steps)
 
 
+    with tf.Session() as sess:
 
-
-
+        init = tf.group(tf.initialize_all_variables(), tf.initialize_local_variables())
+        sess = tf.Session(config=tf.ConfigProto())
+        sess.run(init)
+        coord = tf.train.Coordinator()
+        threads = tf.train.start_queue_runners(coord=coord)
+        coord.request_stop()
+        coord.join(threads)
 
 def build_estimator(model_dir):
-
-
-
+    """
+    Method to build wide and deep model
+    :param model_dir:
+    :return: DNNLinearCombinedClassifier model object
+    """
 
     print("********Inside Build Estimator*******8")
 
@@ -184,12 +161,8 @@ def build_estimator(model_dir):
     wide_columns = [C1,C2,C3,C4,C5,C6,C7,C8,C9,C10,C11,C12,C13,
                     C14,C15,C16,C17,C18,C19,C20,C21,C22,C23,C24,
                     C25,C26,
-
-                    tf.contrib.layers.crossed_column([C9,C20],
-                                                     hash_bucket_size=int(1e6)),
-                    tf.contrib.layers.crossed_column(
-                        [C17, C22],
-                        hash_bucket_size=int(1e6)),
+                    tf.contrib.layers.crossed_column([C9,C20],hash_bucket_size=int(1e6)),
+                    tf.contrib.layers.crossed_column([C17, C22],hash_bucket_size=int(1e6)),
                     ]
 
     deep_columns = [
@@ -237,35 +210,64 @@ def build_estimator(model_dir):
             dnn_hidden_units=[512, 256,128,64],dnn_optimizer="Adagrad",linear_optimizer="SGD")
     return m
 
-def input_fn(df):
-  """Input builder function."""
-  # Creates a dictionary mapping from each continuous feature column name (k) to
-  # the values of that column stored in a constant Tensor.
-  continuous_cols = {k: tf.constant(df[k].values, dtype=tf.float32) for k in CONTINUOUS_COLUMNS}
-  # Creates a dictionary mapping from each categorical feature column name (k)
-  # to the values of that column stored in a tf.SparseTensor.
-  categorical_cols = {k: tf.SparseTensor(
-      indices=[[i, 0] for i in range(df[k].size)],
-      values=df[k].values,
-      shape=[df[k].size, 1])
-                      for k in CATEGORICAL_COLUMNS}
-  # Merges the two dictionaries into one.
-  feature_cols = dict(continuous_cols)
-  feature_cols.update(categorical_cols)
-  # Converts the label column into a constant Tensor.
-  label = tf.constant(df[LABEL_COLUMN].values)
-  # Returns the feature columns and the label.
-  return feature_cols, label
+
+#################################################
+# Method to read the training features in batches
+#################################################
+
+
+def input_fn(batch_size,file_name):
+    """
+    :param batch_size:
+    :param file_name:
+    :return: features and label dict
+    """
+    examples_op = tf.contrib.learn.read_batch_examples(
+        file_name,
+        batch_size=batch_size,
+        reader=tf.TextLineReader,
+        num_epochs=1,
+
+        parse_fn=lambda x: tf.decode_csv(x, [tf.constant([''], dtype=tf.string)] * len(COLUMNS),field_delim=","))
+
+    examples_dict = {}
+
+    for i, header in enumerate(COLUMNS):
+        examples_dict[header] = examples_op[:,i]
 
 
 
 
+    feature_cols = {k: tf.string_to_number(examples_dict[k], out_type=tf.float32)
+                    for k in CONTINUOUS_COLUMNS}
+
+    feature_cols.update({k: dense_to_sparse(examples_dict[k])
+                         for k in CATEGORICAL_COLUMNS})
+
+    label = tf.string_to_number(examples_dict[LABEL_COLUMN], out_type=tf.int32)
+
+    return feature_cols, label
+
+
+def dense_to_sparse(dense_tensor):
+    """
+    :param dense_tensor:
+    :return: Sparse categorical features
+    """
+    indices = tf.to_int64(tf.transpose([tf.range(tf.shape(dense_tensor)[0]), tf.zeros_like(dense_tensor, dtype=tf.int32)]))
+    values = dense_tensor
+    shape = tf.to_int64([tf.shape(dense_tensor)[0], tf.constant(1)])
+
+    return tf.SparseTensor(
+        indices=indices,
+        values=values,
+        shape=shape
+    )
 
 def main():
-
-    train_and_eval("/home/dharamendra/output.csv")
+    train_and_eval(sys.argv[1])
 
 if __name__ == "__main__":
     main()
-#    tf.app.run()
+
 
