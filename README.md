@@ -23,7 +23,7 @@ The objective of the project was to predict whether an adversiment will be click
 
 The approach followed for this project involved three machine learning algorithm: TensorFlow's Wide and Deep learning, Random Forest and Gradient Boosted Decision Trees. We followed different feature enineering techniques for each algorithm. Detailed description of each is given in project report. Finally, the results are compared.
 
-__How to Run__
+## __How to Run__
 
 - __Randon-forest__
   - Run pipeline.py rf <source:input-file> <destination:pre-processed-file>
