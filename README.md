@@ -41,4 +41,4 @@ The approach followed for this project involved three machine learning algorithm
 
 ###Project Report
 
-Please refer dsp_final_report.docx for detailed information of the project implementation.
+Please refer dsp_final_report.pdf for detailed information of the project implementation.
