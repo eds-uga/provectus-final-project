@@ -4,18 +4,19 @@
 
 User responses i.e. Click Through Rate is a critical part of many web applications including web search, personalised recommendation and online advertising. Click Through Rate(CTR) measures the response of a user towards an advertisement. The motivation of the project come from a Kaggle competition named Display Advertising Challenge of 2014.The following python scripts are used for predicting:
 
-- __For Randon-forest__
-  - pipeline.py: This file preprocess the input data.
-  - randomforestmodel.py: This python script creates the classifier model using the output of pipeline.py
-  - evaluate.py: This file predicts the result using the random forest model.
+- __For Random-forest__
+  - preprocessing.py: This file preprocess the input data.
+  - features_VectorAssembler.py: Creates a vector reprensentation for the data.
+  - random_forest.py: This python script creates the classifier model using the output of pipeline.py
+  - rf_transform_model.py: This file predicts the result using the random forest model.
 
 - __For Tensor-Flow__
   - tensorflow_precossing.py: This file preprocess the input data.
-  - tf_wideanddeep.py: Creates a model using the pre-processed data.
-  - tf_wideanddeepevaluate_predict.py: Gives prediction using the learned model.
+  - tf_wide_and_deep.py: Creates a model using the pre-processed data.
+  - wide_deep_evaluate_predict.py: Gives prediction using the learned model.
  
 - __For Gradient Boosted Decision Trees__
-  - gb_classifier.py : This file takes the pre-processed file and predict the results.
+  - gb_clasiifier.py : This file takes the pre-processed file and predict the results.
 
 ###Problem Description
 
@@ -25,18 +26,18 @@ The approach followed for this project involved three machine learning algorithm
 
 ### __How to Run__
 
-- __Randon-forest__
+- __Random-forest__
   - Run pipeline.py rf <source:input-file> <destination:pre-processed-file>
-  - Run randomforestmodel.py rf <source:pre-processed-file> <destination:model-file>
-  - Run evaluate.py rf <source:model-file>
+  - Run random_forest rf <source:pre-processed-file> <destination:model-file>
+  - Run rf_transform_model rf <source:model-file>
 
 - __Tensor-Flow__
   - Run tensorflow_precossing.py
-  - Run tf_wideanddeep.py
-  - Run tf_wideanddeepevaluate_predict.py
+  - Run tf_wide_and_deep.py
+  - Run wide_deep_evaluate_predict.py
  
 - __Gradient Boosted Decision Trees__
-  - Run gb_classifier.py <source-input-file>
+  - Run gb_clasiifier.py <source-input-file>
 
 ###Project Report
 
