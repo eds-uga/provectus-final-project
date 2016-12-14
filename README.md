@@ -27,9 +27,9 @@ The approach followed for this project involved three machine learning algorithm
 ### __How to Run__
 
 - __Random-forest__
-  - Run pipeline.py rf <source:input-file> <destination:pre-processed-file>
-  - Run random_forest rf <source:pre-processed-file> <destination:model-file>
-  - Run rf_transform_model rf <source:model-file>
+  - Run pipeline.py rf \<source:input-file> \<destination:pre-processed-file>
+  - Run random_forest \<source:pre-processed-file> \<destination:model-file>
+  - Run rf_transform_model \<source:model-file>
 
 - __Tensor-Flow__
   - Run tensorflow_precossing.py
@@ -37,7 +37,7 @@ The approach followed for this project involved three machine learning algorithm
   - Run wide_deep_evaluate_predict.py
  
 - __Gradient Boosted Decision Trees__
-  - Run gb_clasiifier.py <source-input-file>
+  - Run gb_clasiifier.py \<source-input-file>
 
 ###Project Report
 
