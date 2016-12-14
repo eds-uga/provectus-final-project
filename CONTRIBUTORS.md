@@ -17,5 +17,15 @@
 - Presentation and Final project report 
 
 ###Shubhi Jain
+- Explored research paper to implement CTR for Random Forest
+- Implemented code for Feature Engineerng using One-hot encoding and vector assembler
+- Implemented code for Randon Forest
+- Bug fixes
+- Readme.md and Final project report
 
 ###Yash Shrivastava
+- Explored research paper to implement CTR for wide and deep learning
+- Implemented code for Feature Engineering of Tensor Flow
+- Implementation of Tensor Flow wide and deep learning
+- Bug Fixes
+- Presentation and Final project report 
